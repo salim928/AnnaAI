@@ -26,7 +26,9 @@ function LoginForm() {
       })
       if (error) throw error
       toast.success('Welcome back.')
-      router.push(search.get('next') ?? '/dashboard')
+      const next = search.get('next') ?? '/dashboard'
+      router.push(next)
+      router.refresh()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Login failed')
     } finally {

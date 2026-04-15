@@ -6,11 +6,19 @@ import {
   Check,
   Sparkles,
 } from 'lucide-react'
+import { SignOutButton } from '@/components/auth/sign-out-button'
+import { createServerSupabase } from '@/lib/supabase/server'
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const supabase = await createServerSupabase()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  const authed = Boolean(user)
+
   return (
     <div className="relative min-h-screen bg-bg font-sans text-ink">
-      <Nav />
+      <Nav authed={authed} />
       <Hero />
       <Marquee />
       <Manifesto />
@@ -30,7 +38,7 @@ export default function LandingPage() {
 /*  Nav                                                                     */
 /* ----------------------------------------------------------------------- */
 
-function Nav() {
+function Nav({ authed }: { authed: boolean }) {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-bg/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
@@ -58,19 +66,34 @@ function Nav() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link
-            href="/login"
-            className="hidden rounded-lg px-3 py-2 text-[13.5px] font-medium text-ink transition hover:bg-accent sm:inline-flex"
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/register"
-            className="group inline-flex items-center gap-1.5 rounded-lg bg-ink px-3.5 py-2 text-[13.5px] font-medium text-white transition hover:bg-ink-2"
-          >
-            Start free
-            <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
-          </Link>
+          {authed ? (
+            <>
+              <Link
+                href="/dashboard"
+                className="group inline-flex items-center gap-1.5 rounded-lg bg-ink px-3.5 py-2 text-[13.5px] font-medium text-white transition hover:bg-ink-2"
+              >
+                Dashboard
+                <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+              </Link>
+              <SignOutButton />
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="hidden rounded-lg px-3 py-2 text-[13.5px] font-medium text-ink transition hover:bg-accent sm:inline-flex"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/register"
+                className="group inline-flex items-center gap-1.5 rounded-lg bg-ink px-3.5 py-2 text-[13.5px] font-medium text-white transition hover:bg-ink-2"
+              >
+                Start free
+                <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>

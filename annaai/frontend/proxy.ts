@@ -17,13 +17,18 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next({ request })
   }
 
-  const response = NextResponse.next({ request })
+  let response = NextResponse.next({ request })
+
   const supabase = createServerClient(url, anon, {
     cookies: {
       getAll() {
         return request.cookies.getAll()
       },
       setAll(items: { name: string; value: string; options: CookieOptions }[]) {
+        for (const { name, value } of items) {
+          request.cookies.set(name, value)
+        }
+        response = NextResponse.next({ request })
         for (const { name, value, options } of items) {
           response.cookies.set(name, value, options)
         }
@@ -35,18 +40,25 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  const withCookies = (redirect: NextResponse) => {
+    for (const cookie of response.cookies.getAll()) {
+      redirect.cookies.set(cookie.name, cookie.value)
+    }
+    return redirect
+  }
+
   if (isAuthRoute && user) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = '/dashboard'
     redirectUrl.search = ''
-    return NextResponse.redirect(redirectUrl)
+    return withCookies(NextResponse.redirect(redirectUrl))
   }
 
   if (!isLanding && !isAuthRoute && !user) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = '/login'
     redirectUrl.search = `?next=${encodeURIComponent(pathname + search)}`
-    return NextResponse.redirect(redirectUrl)
+    return withCookies(NextResponse.redirect(redirectUrl))
   }
 
   return response

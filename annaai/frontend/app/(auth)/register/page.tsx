@@ -34,6 +34,7 @@ export default function RegisterPage() {
       if (error) throw error
       toast.success('Account created. Check your inbox to confirm.')
       router.push('/onboard')
+      router.refresh()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Sign-up failed')
     } finally {
