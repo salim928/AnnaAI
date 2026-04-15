@@ -250,17 +250,13 @@ function Marquee() {
     'WordPress',
     'Google Analytics',
     'Search Console',
-    'Anthropic Claude',
-    'Supabase',
-    'Resend',
-    'Paystack',
-    'CrewAI',
+    'Ghost (soon)',
   ]
   return (
     <section className="border-b border-border bg-surface">
       <div className="mx-auto max-w-6xl px-6 py-10">
         <p className="text-center font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
-          Integrates with your stack
+          Plugs into the tools you already use
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-12 gap-y-4 text-[15px] font-medium text-ink/70">
           {integrations.map((name) => (
@@ -394,7 +390,7 @@ function Agents() {
 
         <div className="mt-8 flex items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-white/40">
           <span className="h-px flex-1 bg-white/10" />
-          Sequential pipeline · Claude Sonnet 4 · vector memory per tenant
+          Sequential pipeline · per-tenant memory · ship on approval
           <span className="h-px flex-1 bg-white/10" />
         </div>
       </div>
@@ -488,23 +484,23 @@ function Capabilities() {
     },
     {
       label: 'Memory',
-      value: 'pgvector HNSW, 384-dim, per-tenant isolated.',
+      value: 'Vector memory, per-tenant isolated. Learns from every approval.',
     },
     {
       label: 'Model',
-      value: 'Anthropic Claude Sonnet 4 via CrewAI 1.9 standalone.',
+      value: 'Frontier LLMs, orchestrated as a multi-agent pipeline.',
     },
     {
       label: 'Runtime',
-      value: 'FastAPI + Celery + Redis. Daily cron at 06:00 local.',
+      value: 'Queue-backed workers. Scheduled daily runs in your timezone.',
     },
     {
       label: 'Tenancy',
-      value: 'Supabase RLS + scoped service client. Zero cross-tenant reads.',
+      value: 'Row-level tenant isolation. Zero cross-tenant reads.',
     },
     {
       label: 'Billing',
-      value: 'Paystack GHS. Pro and Business monthly plans.',
+      value: 'Monthly subscription in GHS. Pro and Business tiers.',
     },
   ]
 
@@ -762,7 +758,7 @@ function FAQ() {
     },
     {
       q: 'Is my data used to train models?',
-      a: 'No. Your content, analytics, and brand memory stay in your Supabase project. We use Anthropic Claude via API — Anthropic does not train on API inputs.',
+      a: 'No. Your content, analytics, and brand memory stay in per-tenant isolated storage. We use Anthropic Claude via API — Anthropic does not train on API inputs.',
     },
     {
       q: 'Can I cancel anytime?',
