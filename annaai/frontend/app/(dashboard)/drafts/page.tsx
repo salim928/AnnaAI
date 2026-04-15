@@ -38,7 +38,7 @@ export default function DraftsPage() {
               'rounded-full border px-4 py-1.5 text-sm font-medium transition',
               filter === f.value
                 ? 'border-primary bg-primary text-white'
-                : 'border-border bg-white text-surface hover:border-primary',
+                : 'border-border bg-white text-ink hover:border-primary',
             )}
           >
             {f.label}

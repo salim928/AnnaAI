@@ -42,7 +42,7 @@ export function Sidebar() {
                 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition',
                 active
                   ? 'bg-primary text-white'
-                  : 'text-surface hover:bg-border',
+                  : 'text-ink hover:bg-accent',
               )}
             >
               <Icon className="h-4 w-4" />

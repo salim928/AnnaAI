@@ -35,7 +35,7 @@ export default function SettingsPage() {
               '-mb-px border-b-2 px-4 py-2 text-sm font-medium transition',
               tab === t
                 ? 'border-primary text-primary'
-                : 'border-transparent text-muted hover:text-surface',
+                : 'border-transparent text-muted hover:text-ink',
             )}
           >
             {t}

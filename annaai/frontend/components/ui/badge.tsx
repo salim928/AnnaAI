@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 type Tone = 'default' | 'success' | 'warning' | 'danger' | 'info'
 
 const TONES: Record<Tone, string> = {
-  default: 'bg-border text-surface',
+  default: 'bg-accent text-ink',
   success: 'bg-green-100 text-green-800',
   warning: 'bg-yellow-100 text-yellow-800',
   danger: 'bg-red-100 text-red-800',
