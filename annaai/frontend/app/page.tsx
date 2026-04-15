@@ -823,10 +823,7 @@ function CTA() {
           />
 
           <div className="relative">
-            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
-              07 — Ship tomorrow
-            </div>
-            <h2 className="font-display mx-auto mt-5 max-w-3xl text-balance text-5xl font-semibold leading-[1.02] tracking-tight sm:text-6xl md:text-[72px]">
+            <h2 className="font-display mx-auto max-w-3xl text-balance text-5xl font-semibold leading-[1.02] tracking-tight sm:text-6xl md:text-[72px]">
               Your new marketing team
               <br />
               <span className="text-white/40">starts tomorrow.</span>
