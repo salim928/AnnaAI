@@ -1,0 +1,154 @@
+@import "tailwindcss";
+
+@theme {
+  /* Core palette — editorial, near-black on off-white */
+  --color-bg: #fafafa;
+  --color-surface: #ffffff;
+  --color-ink: #0a0a0a;
+  --color-ink-2: #171717;
+  --color-text: #0a0a0a;
+  --color-muted: #71717a;
+  --color-muted-2: #a1a1aa;
+  --color-border: #e4e4e7;
+  --color-border-strong: #d4d4d8;
+  --color-accent: #f4f4f5;
+
+  /* Signature brand */
+  --color-primary: #e94560;
+  --color-primary-hover: #d63851;
+  --color-primary-soft: rgba(233, 69, 96, 0.08);
+
+  /* Kept for backward compat with existing components */
+  --color-surface-2: #23233a;
+
+  /* Typography — Geist via next/font */
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), "SF Mono", Menlo, Consolas, monospace;
+  --font-display: var(--font-geist-sans), -apple-system, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* --- Utilities ----------------------------------------------------------- */
+
+@utility font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.035em;
+  font-feature-settings: "ss01", "cv11";
+}
+
+@utility font-mono {
+  font-family: var(--font-mono);
+}
+
+@utility grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(10, 10, 10, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(10, 10, 10, 0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+@utility dot-bg {
+  background-image: radial-gradient(
+    circle,
+    rgba(10, 10, 10, 0.08) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+}
+
+@utility shimmer {
+  background: linear-gradient(90deg, #eeeef2 0%, #f8f8f8 50%, #eeeef2 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@utility text-gradient {
+  background: linear-gradient(180deg, #0a0a0a 0%, #52525b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+@utility text-gradient-brand {
+  background: linear-gradient(110deg, #0a0a0a 20%, #e94560 50%, #0a0a0a 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: shine 6s linear infinite;
+}
+
+@keyframes shine {
+  to {
+    background-position: 200% center;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility fade-up {
+  animation: fade-up 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes border-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Thin hairline utility for dividers */
+@utility hairline {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-border-strong),
+    transparent
+  );
+  height: 1px;
+  width: 100%;
+}

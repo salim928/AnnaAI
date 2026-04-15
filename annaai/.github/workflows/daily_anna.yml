@@ -1,0 +1,31 @@
+name: Daily Anna Run
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger daily runs (with retry for Render cold start)
+        run: |
+          set -eu
+          for attempt in 1 2 3; do
+            echo "Attempt $attempt ..."
+            status=$(curl -s -o /tmp/resp.json -w "%{http_code}" \
+              -X POST "${{ secrets.BACKEND_URL }}/api/scheduler/trigger-all-runs" \
+              -H "Authorization: Bearer ${{ secrets.SCHEDULER_SECRET }}" \
+              -H "Content-Type: application/json" \
+              -d '{"source":"github_actions"}') || status=000
+            echo "HTTP $status"
+            cat /tmp/resp.json || true
+            if [ "$status" = "200" ] || [ "$status" = "202" ]; then
+              echo "Triggered."
+              exit 0
+            fi
+            sleep 30
+          done
+          echo "All retries failed."
+          exit 1
