@@ -61,7 +61,8 @@ export function DraftEditor({ draft }: { draft: ContentDraft }) {
         <Label htmlFor="draft-body">Body</Label>
         <Textarea
           id="draft-body"
-          rows={18}
+          rows={8}
+          className="md:min-h-[28rem]"
           value={body}
           onChange={(e) => setBody(e.target.value)}
           disabled={!editable}

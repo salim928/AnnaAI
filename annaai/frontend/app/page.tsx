@@ -108,7 +108,7 @@ function Hero() {
   return (
     <section className="relative overflow-hidden border-b border-border">
       <div className="pointer-events-none absolute inset-0 grid-bg [mask-image:radial-gradient(ellipse_60%_60%_at_50%_30%,#000_40%,transparent_100%)]" />
-      <div className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(233,69,96,0.18),transparent)]" />
+      <div className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-full max-w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(233,69,96,0.18),transparent)]" />
 
       <div className="relative mx-auto max-w-6xl px-6 pt-24 pb-28 md:pt-32 md:pb-40">
         <div className="mx-auto max-w-4xl text-center fade-up">
@@ -173,9 +173,9 @@ function BrowserMock() {
         </div>
 
         {/* App body */}
-        <div className="grid grid-cols-12 gap-0">
-          {/* Sidebar */}
-          <div className="col-span-3 border-r border-border bg-bg p-4">
+        <div className="grid grid-cols-1 gap-0 sm:grid-cols-12">
+          {/* Sidebar — hidden on very small screens */}
+          <div className="hidden border-r border-border bg-bg p-4 sm:col-span-3 sm:block">
             <div className="flex items-center gap-2 rounded-md bg-ink px-2.5 py-1.5 text-[11px] font-semibold text-white">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
               Dashboard
@@ -191,7 +191,7 @@ function BrowserMock() {
           </div>
 
           {/* Main */}
-          <div className="col-span-9 p-5">
+          <div className="col-span-1 p-4 sm:col-span-9 sm:p-5">
             <div className="flex items-center justify-between">
               <div>
                 <div className="font-mono text-[10px] uppercase tracking-wider text-muted">
@@ -300,7 +300,7 @@ function Marquee() {
 function Manifesto() {
   return (
     <section className="relative border-b border-border">
-      <div className="mx-auto grid max-w-6xl gap-16 px-6 py-28 md:grid-cols-12">
+      <div className="mx-auto grid max-w-6xl gap-8 px-6 py-16 md:gap-16 md:py-28 md:grid-cols-12">
         <div className="md:col-span-4">
           <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
             01 — The shift
@@ -530,7 +530,7 @@ function Capabilities() {
   return (
     <section className="border-b border-border bg-surface">
       <div className="mx-auto max-w-6xl px-6 py-28">
-        <div className="grid gap-16 md:grid-cols-12">
+        <div className="grid gap-8 md:gap-16 md:grid-cols-12">
           <div className="md:col-span-4">
             <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
               04 — Under the hood
@@ -549,12 +549,12 @@ function Capabilities() {
               {rows.map((r) => (
                 <div
                   key={r.label}
-                  className="grid grid-cols-12 gap-4 py-5"
+                  className="grid gap-1 py-5 sm:grid-cols-12 sm:gap-4"
                 >
-                  <div className="col-span-4 font-mono text-[11px] uppercase tracking-wider text-muted">
+                  <div className="font-mono text-[11px] uppercase tracking-wider text-muted sm:col-span-4">
                     {r.label}
                   </div>
-                  <div className="col-span-8 text-[15px] text-ink">
+                  <div className="text-[15px] text-ink sm:col-span-8">
                     {r.value}
                   </div>
                 </div>
@@ -791,7 +791,7 @@ function FAQ() {
 
   return (
     <section id="faq" className="border-b border-border bg-surface">
-      <div className="mx-auto grid max-w-6xl gap-16 px-6 py-28 md:grid-cols-12">
+      <div className="mx-auto grid max-w-6xl gap-8 px-6 py-16 md:gap-16 md:py-28 md:grid-cols-12">
         <div className="md:col-span-4">
           <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
             06 — FAQ
@@ -835,7 +835,7 @@ function CTA() {
   return (
     <section className="relative border-b border-border">
       <div className="mx-auto max-w-6xl px-6 py-28">
-        <div className="relative overflow-hidden rounded-3xl border border-ink bg-ink p-12 text-center text-white md:p-20">
+        <div className="relative overflow-hidden rounded-3xl border border-ink bg-ink p-8 text-center text-white sm:p-12 md:p-20">
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 opacity-10 bg-[radial-gradient(circle,#ffffff_1px,transparent_1px)] bg-size-[24px_24px]"
@@ -907,7 +907,7 @@ function Footer() {
             </p>
           </div>
 
-          <div className="md:col-span-7 grid grid-cols-3 gap-8">
+          <div className="md:col-span-7 grid grid-cols-2 gap-8 sm:grid-cols-3">
             <FooterCol
               title="Product"
               links={[

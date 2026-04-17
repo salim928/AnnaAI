@@ -9,7 +9,7 @@ export function Input({
     <input
       {...rest}
       className={clsx(
-        'w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none transition focus:border-primary',
+        'w-full rounded-lg border border-border bg-white px-3 py-2.5 text-base outline-none transition focus:border-primary md:py-2 md:text-sm',
         className,
       )}
     />
@@ -24,7 +24,7 @@ export function Textarea({
     <textarea
       {...rest}
       className={clsx(
-        'w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none transition focus:border-primary',
+        'w-full rounded-lg border border-border bg-white px-3 py-2.5 text-base outline-none transition focus:border-primary md:py-2 md:text-sm',
         className,
       )}
     />

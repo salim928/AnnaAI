@@ -44,35 +44,67 @@ export function RunsTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border">
-      <table className="w-full text-left text-sm">
-        <thead className="bg-bg text-xs uppercase tracking-wide text-muted">
-          <tr>
-            <th className="px-4 py-3">Type</th>
-            <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3">Started</th>
-            <th className="px-4 py-3">Summary</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border">
-          {runs.map((r) => (
-            <tr key={r.id} className="hover:bg-bg">
-              <td className="px-4 py-3 font-medium capitalize">
+    <>
+      {/* Mobile: card layout */}
+      <div className="space-y-3 md:hidden">
+        {runs.map((r) => (
+          <div
+            key={r.id}
+            className="rounded-lg border border-border bg-white p-4"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium capitalize">
                 {r.run_type.replace(/_/g, ' ')}
-              </td>
-              <td className="px-4 py-3">
-                <Badge tone={toneFor(r.status)}>{r.status}</Badge>
-              </td>
-              <td className="px-4 py-3 text-muted">
-                {formatDate(r.started_at)}
-              </td>
-              <td className="max-w-sm truncate px-4 py-3 text-muted">
-                <Link href={`/runs#${r.id}`}>{r.summary ?? r.error_message ?? '—'}</Link>
-              </td>
+              </span>
+              <Badge tone={toneFor(r.status)}>{r.status}</Badge>
+            </div>
+            <div className="mt-2 text-xs text-muted">
+              {formatDate(r.started_at)}
+            </div>
+            {(r.summary || r.error_message) && (
+              <p className="mt-2 text-sm text-muted line-clamp-2">
+                <Link href={`/runs#${r.id}`}>
+                  {r.summary ?? r.error_message}
+                </Link>
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop: table layout */}
+      <div className="hidden overflow-hidden rounded-lg border border-border md:block">
+        <table className="w-full text-left text-sm">
+          <thead className="bg-bg text-xs uppercase tracking-wide text-muted">
+            <tr>
+              <th className="px-4 py-3">Type</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Started</th>
+              <th className="px-4 py-3">Summary</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {runs.map((r) => (
+              <tr key={r.id} className="hover:bg-bg">
+                <td className="px-4 py-3 font-medium capitalize">
+                  {r.run_type.replace(/_/g, ' ')}
+                </td>
+                <td className="px-4 py-3">
+                  <Badge tone={toneFor(r.status)}>{r.status}</Badge>
+                </td>
+                <td className="px-4 py-3 text-muted">
+                  {formatDate(r.started_at)}
+                </td>
+                <td className="max-w-sm truncate px-4 py-3 text-muted">
+                  <Link href={`/runs#${r.id}`}>
+                    {r.summary ?? r.error_message ?? '—'}
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   )
 }

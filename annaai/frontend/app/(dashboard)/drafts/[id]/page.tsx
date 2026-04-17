@@ -53,10 +53,10 @@ export default function DraftDetailPage({
         Back to drafts
       </Link>
 
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">{d.title ?? 'Untitled draft'}</h1>
-          <div className="mt-2 flex items-center gap-3 text-sm text-muted">
+          <h1 className="text-xl font-bold sm:text-2xl">{d.title ?? 'Untitled draft'}</h1>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted sm:gap-3">
             <Badge tone={tone(d.status)}>{d.status}</Badge>
             <span className="capitalize">{d.type.replace('_', ' ')}</span>
             <span>{new Date(d.created_at).toLocaleString()}</span>
@@ -68,7 +68,7 @@ export default function DraftDetailPage({
       {d.image_url ? (
         <Card>
           <CardHeader title="Hero image" />
-          <div className="relative h-64 w-full overflow-hidden rounded-lg">
+          <div className="relative h-48 w-full overflow-hidden rounded-lg md:h-64">
             <Image
               src={d.image_url}
               alt={d.title ?? 'Draft hero'}

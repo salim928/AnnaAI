@@ -61,8 +61,8 @@ export function ChatWindow() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] flex-col overflow-hidden rounded-xl border border-border bg-bg">
-      <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-6">
+    <div className="flex h-[calc(100dvh-8rem)] flex-col overflow-hidden rounded-xl border border-border bg-bg">
+      <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-4 md:p-6">
         {messages.map((m, i) => (
           <MessageBubble key={i} role={m.role} content={m.content} />
         ))}
