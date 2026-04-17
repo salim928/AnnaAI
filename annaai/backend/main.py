@@ -107,6 +107,7 @@ def _mount_routers() -> None:
             onboarding,
             runs,
             scheduler,
+            settings,
             webhooks,
         )
     except ImportError as exc:  # Batch 3 not yet installed
@@ -122,6 +123,7 @@ def _mount_routers() -> None:
     app.include_router(webhooks.router, prefix="/api/webhooks", tags=["webhooks"])
     app.include_router(scheduler.router, prefix="/api/scheduler", tags=["scheduler"])
     app.include_router(billing.router, prefix="/api/billing", tags=["billing"])
+    app.include_router(settings.router, prefix="/api/settings", tags=["settings"])
 
 
 _mount_routers()

@@ -48,7 +48,7 @@ async def current_plan(user: CurrentOrgUser) -> dict[str, str]:
     res = (
         sb.table("organizations")
         .select("plan")
-        .eq("id", user["org_id"])
+        .eq("id", user.org_id)
         .single()
         .execute()
     )
@@ -62,9 +62,9 @@ async def start_checkout(
 ) -> CheckoutResponse:
     try:
         data = await initialize_transaction(
-            email=user["email"],
+            email=user.email,
             plan=body.plan,
-            org_id=user["org_id"],
+            org_id=user.org_id,
         )
     except RuntimeError as e:
         raise HTTPException(503, str(e))

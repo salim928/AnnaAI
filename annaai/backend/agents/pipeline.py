@@ -166,6 +166,44 @@ async def run_onboarding_pipeline(
 # ---------------------------------------------------------------------------
 # Daily pipeline — single org
 # ---------------------------------------------------------------------------
+async def _count_runs_today(org_id: str) -> int:
+    """Count how many runs the org has triggered today (UTC)."""
+    sb = get_supabase_admin_client()
+    if sb is None:
+        return 0
+    try:
+        res = await asyncio.to_thread(
+            lambda: sb.table("agent_runs")
+            .select("id", count="exact")
+            .eq("org_id", org_id)
+            .gte("started_at", time.strftime("%Y-%m-%dT00:00:00Z", time.gmtime()))
+            .execute()
+        )
+        return int(res.count or 0)
+    except Exception:
+        return 0
+
+
+def _max_runs_per_day(plan: str) -> int:
+    from config import settings
+
+    if plan == "business":
+        return 999  # effectively unlimited
+    if plan == "pro":
+        return 3
+    return settings.MAX_RUNS_PER_DAY_FREE
+
+
+def _max_drafts_per_run(plan: str) -> int:
+    from config import settings
+
+    if plan == "business":
+        return 999  # effectively unlimited
+    if plan == "pro":
+        return settings.MAX_DRAFTS_PER_RUN_PRO
+    return settings.MAX_DRAFTS_PER_RUN_FREE
+
+
 async def run_daily_pipeline_for_org(org_id: str) -> dict[str, Any]:
     try:
         UUID(org_id)
@@ -177,6 +215,18 @@ async def run_daily_pipeline_for_org(org_id: str) -> dict[str, Any]:
         return {"status": "error", "error": "org not found or supabase not configured"}
     if not org.get("onboarding_complete"):
         return {"status": "skipped", "reason": "onboarding incomplete"}
+
+    plan = org.get("plan") or "free"
+
+    # --- Plan limit: max runs per day ---
+    runs_today = await _count_runs_today(org_id)
+    max_runs = _max_runs_per_day(plan)
+    if runs_today >= max_runs:
+        logger.info("run_limit_reached", org_id=org_id, plan=plan, runs_today=runs_today)
+        return {
+            "status": "limit_reached",
+            "error": f"Daily run limit reached ({max_runs} runs/day on {plan} plan). Upgrade for more.",
+        }
 
     run_id = await _create_run(org_id, run_type="daily")
     log_agent_run_start(org_id, run_id or "local", "daily")

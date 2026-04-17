@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { clsx } from 'clsx'
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Card, CardHeader } from '@/components/ui/card'
 import { Input, Label, Textarea } from '@/components/ui/input'
@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/spinner'
 import { api } from '@/lib/api'
 
-const TABS = ['Profile', 'Brand voice', 'Billing', 'Notifications'] as const
+const TABS = ['Profile', 'Brand voice', 'Billing', 'Notifications', 'Account'] as const
 type Tab = (typeof TABS)[number]
 
 export default function SettingsPage() {
@@ -47,11 +47,47 @@ export default function SettingsPage() {
       {tab === 'Brand voice' ? <BrandVoiceTab /> : null}
       {tab === 'Billing' ? <BillingTab /> : null}
       {tab === 'Notifications' ? <NotificationsTab /> : null}
+      {tab === 'Account' ? <AccountTab /> : null}
     </div>
   )
 }
 
 function ProfileTab() {
+  const queryClient = useQueryClient()
+  const settings = useQuery({
+    queryKey: ['settings'],
+    queryFn: () => api.getSettings(),
+  })
+
+  const [name, setName] = useState('')
+  const [website, setWebsite] = useState('')
+  const [industry, setIndustry] = useState('')
+
+  useEffect(() => {
+    if (settings.data) {
+      setName(settings.data.name ?? '')
+      setWebsite(settings.data.website_url ?? '')
+      setIndustry(settings.data.industry ?? '')
+    }
+  }, [settings.data])
+
+  const save = useMutation({
+    mutationFn: () =>
+      api.updateSettings({
+        name: name || null,
+        website_url: website || null,
+        industry: industry || null,
+      }),
+    onSuccess: () => {
+      toast.success('Profile saved')
+      queryClient.invalidateQueries({ queryKey: ['settings'] })
+    },
+    onError: (err) =>
+      toast.error(err instanceof Error ? err.message : 'Save failed'),
+  })
+
+  if (settings.isPending) return <Spinner />
+
   return (
     <Card>
       <CardHeader
@@ -61,18 +97,35 @@ function ProfileTab() {
       <div className="space-y-4">
         <div>
           <Label htmlFor="org-name">Organization name</Label>
-          <Input id="org-name" placeholder="Acme Inc." />
+          <Input
+            id="org-name"
+            placeholder="Acme Inc."
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
         </div>
         <div>
           <Label htmlFor="org-website">Website</Label>
-          <Input id="org-website" placeholder="https://acme.com" />
+          <Input
+            id="org-website"
+            placeholder="https://acme.com"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+          />
         </div>
         <div>
           <Label htmlFor="org-industry">Industry</Label>
-          <Input id="org-industry" placeholder="SaaS, E-commerce…" />
+          <Input
+            id="org-industry"
+            placeholder="SaaS, E-commerce..."
+            value={industry}
+            onChange={(e) => setIndustry(e.target.value)}
+          />
         </div>
         <div className="flex justify-end">
-          <Button>Save changes</Button>
+          <Button onClick={() => save.mutate()} disabled={save.isPending}>
+            {save.isPending ? 'Saving...' : 'Save changes'}
+          </Button>
         </div>
       </div>
     </Card>
@@ -80,6 +133,32 @@ function ProfileTab() {
 }
 
 function BrandVoiceTab() {
+  const queryClient = useQueryClient()
+  const settings = useQuery({
+    queryKey: ['settings'],
+    queryFn: () => api.getSettings(),
+  })
+
+  const [voice, setVoice] = useState('')
+
+  useEffect(() => {
+    if (settings.data) {
+      setVoice(settings.data.brand_voice ?? '')
+    }
+  }, [settings.data])
+
+  const save = useMutation({
+    mutationFn: () => api.updateSettings({ brand_voice: voice || null }),
+    onSuccess: () => {
+      toast.success('Brand voice saved')
+      queryClient.invalidateQueries({ queryKey: ['settings'] })
+    },
+    onError: (err) =>
+      toast.error(err instanceof Error ? err.message : 'Save failed'),
+  })
+
+  if (settings.isPending) return <Spinner />
+
   return (
     <Card>
       <CardHeader
@@ -89,9 +168,13 @@ function BrandVoiceTab() {
       <Textarea
         rows={8}
         placeholder="Friendly, direct, no jargon. We lean practical over aspirational."
+        value={voice}
+        onChange={(e) => setVoice(e.target.value)}
       />
       <div className="mt-4 flex justify-end">
-        <Button>Save voice</Button>
+        <Button onClick={() => save.mutate()} disabled={save.isPending}>
+          {save.isPending ? 'Saving...' : 'Save voice'}
+        </Button>
       </div>
     </Card>
   )
@@ -174,6 +257,33 @@ function BillingTab() {
 }
 
 function NotificationsTab() {
+  const queryClient = useQueryClient()
+  const settings = useQuery({
+    queryKey: ['settings'],
+    queryFn: () => api.getSettings(),
+  })
+
+  const [email, setEmail] = useState('')
+
+  useEffect(() => {
+    if (settings.data) {
+      setEmail(settings.data.notification_email ?? '')
+    }
+  }, [settings.data])
+
+  const save = useMutation({
+    mutationFn: () =>
+      api.updateSettings({ notification_email: email || null }),
+    onSuccess: () => {
+      toast.success('Notification email saved')
+      queryClient.invalidateQueries({ queryKey: ['settings'] })
+    },
+    onError: (err) =>
+      toast.error(err instanceof Error ? err.message : 'Save failed'),
+  })
+
+  if (settings.isPending) return <Spinner />
+
   return (
     <Card>
       <CardHeader
@@ -183,12 +293,66 @@ function NotificationsTab() {
       <div className="space-y-4">
         <div>
           <Label htmlFor="email-to">Send brief to</Label>
-          <Input id="email-to" type="email" placeholder="you@company.com" />
+          <Input
+            id="email-to"
+            type="email"
+            placeholder="you@company.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
         <div className="flex justify-end">
-          <Button>Save</Button>
+          <Button onClick={() => save.mutate()} disabled={save.isPending}>
+            {save.isPending ? 'Saving...' : 'Save'}
+          </Button>
         </div>
       </div>
     </Card>
+  )
+}
+
+function AccountTab() {
+  const [confirmText, setConfirmText] = useState('')
+
+  const deleteAccount = useMutation({
+    mutationFn: () => api.deleteAccount(),
+    onSuccess: () => {
+      toast.success('Account deleted')
+      window.location.href = '/'
+    },
+    onError: (err) =>
+      toast.error(err instanceof Error ? err.message : 'Deletion failed'),
+  })
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader
+          title="Delete account"
+          description="Permanently delete your organization, all data, drafts, runs, and brand memory. This cannot be undone."
+        />
+        <div className="space-y-4">
+          <p className="text-sm text-muted">
+            Type <strong>DELETE</strong> below to confirm.
+          </p>
+          <Input
+            placeholder="Type DELETE to confirm"
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+          />
+          <div className="flex justify-end">
+            <Button
+              variant="danger"
+              disabled={confirmText !== 'DELETE' || deleteAccount.isPending}
+              onClick={() => deleteAccount.mutate()}
+            >
+              {deleteAccount.isPending
+                ? 'Deleting...'
+                : 'Delete my account'}
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </div>
   )
 }

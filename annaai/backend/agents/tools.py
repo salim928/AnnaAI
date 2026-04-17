@@ -205,6 +205,42 @@ def send_daily_brief(subject: str, html_body: str) -> str:
 # ---------------------------------------------------------------------------
 # Drafts
 # ---------------------------------------------------------------------------
+def _drafts_in_current_run() -> int:
+    """Count how many drafts already exist for the current run."""
+    sb = get_supabase_admin_client()
+    run_id = _current_run_id.get()
+    if sb is None or not run_id:
+        return 0
+    try:
+        res = (
+            sb.table("content_drafts")
+            .select("id", count="exact")
+            .eq("run_id", run_id)
+            .execute()
+        )
+        return int(res.count or 0)
+    except Exception:
+        return 0
+
+
+def _get_org_plan() -> str:
+    """Look up the current org's plan."""
+    sb = get_supabase_admin_client()
+    if sb is None:
+        return "free"
+    try:
+        res = (
+            sb.table("organizations")
+            .select("plan")
+            .eq("id", _org_id())
+            .single()
+            .execute()
+        )
+        return (res.data or {}).get("plan", "free")
+    except Exception:
+        return "free"
+
+
 @tool("save_content_draft")
 def save_content_draft(
     type: str,
@@ -215,6 +251,16 @@ def save_content_draft(
     topic: str = "",
 ) -> str:
     """Persist a content draft to Supabase. Returns the new draft id (or 'local' fallback)."""
+    from agents.pipeline import _max_drafts_per_run
+
+    # --- Plan limit: max drafts per run ---
+    plan = _get_org_plan()
+    max_drafts = _max_drafts_per_run(plan)
+    current_count = _drafts_in_current_run()
+    if current_count >= max_drafts:
+        logger.info("draft_limit_reached", org_id=_org_id(), plan=plan, count=current_count)
+        return f"Draft limit reached ({max_drafts} drafts/run on {plan} plan). Skipping."
+
     sb = get_supabase_admin_client()
     row: dict[str, Any] = {
         "org_id": _org_id(),

@@ -163,6 +163,35 @@ export const api = {
       method: 'DELETE',
     }),
 
+  // --- Settings -----------------------------------------------------------
+  getSettings: () =>
+    request<{
+      id: string
+      name: string
+      website_url: string | null
+      industry: string | null
+      brand_voice: string | null
+      brand_tone: string | null
+      target_audience: string | null
+      goals: string | null
+      notification_email: string | null
+      plan: string
+      onboarding_complete: boolean
+      onboarding_step: number
+      created_at: string
+    }>('/api/settings'),
+
+  updateSettings: (body: Record<string, string | null>) =>
+    request<Record<string, unknown>>('/api/settings', {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+
+  deleteAccount: () =>
+    request<{ status: string }>('/api/settings/account', {
+      method: 'DELETE',
+    }),
+
   // --- Billing ------------------------------------------------------------
   listPlans: () =>
     request<

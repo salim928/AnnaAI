@@ -1,9 +1,10 @@
 """Agent runs — list, stats, trigger."""
 from __future__ import annotations
 
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query, Request
 
-from agents.pipeline import run_daily_pipeline_for_org
+from agents.pipeline import _count_runs_today, _max_runs_per_day, run_daily_pipeline_for_org
+from api.rate_limit import limiter
 from db.client import get_supabase_admin_client
 from db.models import AgentRunResponse, PaginatedResponse, RunStatsResponse
 from dependencies import CurrentOrgUser
@@ -70,7 +71,26 @@ async def run_stats(user: CurrentOrgUser) -> RunStatsResponse:
 
 
 @router.post("/trigger")
-async def trigger_run(background: BackgroundTasks, user: CurrentOrgUser) -> dict[str, str]:
+@limiter.limit("5/minute")
+async def trigger_run(request: Request, background: BackgroundTasks, user: CurrentOrgUser) -> dict[str, str]:
+    # Pre-check plan limits before queuing so the user gets immediate feedback
+    sb = get_supabase_admin_client()
+    plan = "free"
+    if sb:
+        try:
+            res = sb.table("organizations").select("plan").eq("id", user.org_id).single().execute()
+            plan = (res.data or {}).get("plan", "free")
+        except Exception:
+            pass
+
+    runs_today = await _count_runs_today(user.org_id or "")
+    max_runs = _max_runs_per_day(plan)
+    if runs_today >= max_runs:
+        raise HTTPException(
+            429,
+            f"Daily run limit reached ({max_runs} runs/day on {plan} plan). Upgrade for more.",
+        )
+
     async def _go() -> None:
         await run_daily_pipeline_for_org(user.org_id or "")
 

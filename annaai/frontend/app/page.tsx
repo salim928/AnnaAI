@@ -939,6 +939,10 @@ function Footer() {
           <div className="font-mono">
             © {new Date().getFullYear()} AnnaAi · all rights reserved
           </div>
+          <div className="flex gap-4 font-mono">
+            <a href="/terms" className="hover:text-ink transition">Terms</a>
+            <a href="/privacy" className="hover:text-ink transition">Privacy</a>
+          </div>
           <div className="font-mono uppercase tracking-wider">
             built in africa · running everywhere
           </div>
