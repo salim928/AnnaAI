@@ -8,8 +8,11 @@ from typing import Any
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from api.middleware import RequestLoggingMiddleware, SecurityHeadersMiddleware
+from api.rate_limit import limiter
 from config import settings
 from db.client import get_supabase_admin_client
 from utils.logger import configure_logging, get_logger
@@ -17,9 +20,27 @@ from utils.logger import configure_logging, get_logger
 logger = get_logger("main")
 
 
+def _init_sentry() -> None:
+    """Initialise Sentry if a DSN is configured."""
+    if not settings.SENTRY_DSN:
+        logger.info("sentry_disabled", reason="SENTRY_DSN not set")
+        return
+    import sentry_sdk
+
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        environment=settings.ENVIRONMENT,
+        release=f"{settings.APP_NAME}@{settings.APP_VERSION}",
+        traces_sample_rate=0.2 if settings.is_production else 1.0,
+        send_default_pii=False,
+    )
+    logger.info("sentry_enabled")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     configure_logging()
+    _init_sentry()
     logger.info(
         "startup",
         app=settings.APP_NAME,
@@ -55,6 +76,10 @@ app = FastAPI(
     lifespan=lifespan,
     debug=settings.DEBUG,
 )
+
+# --- Rate limiting -----------------------------------------------------------
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # --- Middleware (outermost first) -------------------------------------------
 app.add_middleware(

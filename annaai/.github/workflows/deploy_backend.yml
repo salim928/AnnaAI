@@ -30,12 +30,12 @@ jobs:
         run: ruff check .
 
       - name: Mypy
-        run: mypy . || true  # non-blocking while Batch 3 is still landing
+        run: mypy .
 
       - name: Pytest
         env:
           ENVIRONMENT: development
-        run: pytest -q || true
+        run: pytest -q
 
   deploy:
     needs: ci

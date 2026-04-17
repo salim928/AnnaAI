@@ -1,10 +1,13 @@
 """FastAPI dependency aliases — JWT auth + org scoping.
 
-Full JWT validation and Supabase user lookup land in Batch 3.
-This module exposes the typed Annotated aliases routes should import.
+Validates Supabase-issued JWTs and resolves the calling user's org.
+In production, signature verification is mandatory (SECRET_KEY must be the
+Supabase JWT secret).  In development it falls back to unverified decoding
+so the app still boots without a full Supabase setup.
 """
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from typing import Annotated
 
@@ -13,6 +16,8 @@ from fastapi import Depends, Header, HTTPException, status
 
 from config import settings
 from db.client import get_supabase_admin_client
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(slots=True, frozen=True)
@@ -31,12 +36,30 @@ async def get_current_user(
             detail="Missing or invalid Authorization header",
         )
     token = authorization.split(" ", 1)[1]
+
+    # --- JWT decode with signature verification ---
+    # Production: SECRET_KEY is required and signature is verified.
+    # Development: if SECRET_KEY is empty, fall back to unverified decode
+    #              with a warning (local-only convenience).
+    has_secret = bool(settings.SECRET_KEY)
+
+    if has_secret:
+        decode_options = {"verify_aud": False}
+    else:
+        if settings.is_production:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Server misconfiguration: SECRET_KEY is required in production",
+            )
+        logger.warning("jwt_unverified: SECRET_KEY is empty — skipping signature check (dev only)")
+        decode_options = {"verify_signature": False, "verify_aud": False}
+
     try:
         payload = jwt.decode(
             token,
             settings.SECRET_KEY or "",
-            algorithms=["HS256", "ES256", "RS256"],
-            options={"verify_signature": False, "verify_aud": False},
+            algorithms=["HS256"],
+            options=decode_options,
         )
     except jwt.PyJWTError as exc:
         raise HTTPException(

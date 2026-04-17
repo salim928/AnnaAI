@@ -3,9 +3,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr, Field
 
+from api.rate_limit import AUTH_LIMIT, limiter
 from db.client import get_supabase_client
 from utils.logger import get_logger
 
@@ -33,7 +34,8 @@ class TokenResponse(BaseModel):
 
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
-async def register(payload: RegisterRequest) -> Any:
+@limiter.limit(AUTH_LIMIT)
+async def register(request: Request, payload: RegisterRequest) -> Any:
     sb = get_supabase_client()
     if sb is None:
         raise HTTPException(503, "Supabase not configured")
@@ -66,7 +68,8 @@ async def register(payload: RegisterRequest) -> Any:
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(payload: LoginRequest) -> Any:
+@limiter.limit(AUTH_LIMIT)
+async def login(request: Request, payload: LoginRequest) -> Any:
     sb = get_supabase_client()
     if sb is None:
         raise HTTPException(503, "Supabase not configured")

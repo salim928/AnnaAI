@@ -59,6 +59,12 @@ dependencies = [
     # Image processing
     "Pillow>=11.0.0",
 
+    # Rate limiting
+    "slowapi>=0.1.9",
+
+    # Error tracking
+    "sentry-sdk[fastapi]>=2.0.0",
+
     # Utilities
     "tenacity>=9.0.0",
     "structlog>=24.4.0",

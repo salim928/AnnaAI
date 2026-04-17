@@ -1,10 +1,11 @@
 """Onboarding routes — kick off site scrape + brand memory seeding."""
 from __future__ import annotations
 
-from fastapi import APIRouter, BackgroundTasks, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Request
 from pydantic import BaseModel, Field, HttpUrl
 
 from agents.pipeline import run_onboarding_pipeline
+from api.rate_limit import ONBOARDING_LIMIT, limiter
 from db.client import get_supabase_admin_client
 from db.models import OnboardingStatusResponse
 from dependencies import CurrentOrgUser, CurrentUser
@@ -56,7 +57,9 @@ async def _run_onboarding_in_background(org_id: str, website_url: str) -> None:
 
 
 @router.post("", response_model=OnboardResponse)
+@limiter.limit(ONBOARDING_LIMIT)
 async def start_onboarding(
+    request: Request,
     payload: OnboardRequest,
     background: BackgroundTasks,
     user: CurrentUser,

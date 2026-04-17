@@ -1,13 +1,30 @@
+# Secrets — never commit real credentials
 .env
+.env.local
+.env.production
+.env.staging
+backend/.env
+frontend/.env.local
+
+# Python
 .venv/
 venv/
 __pycache__/
 *.pyc
+*.pyo
 .DS_Store
+
+# Node / Next.js
 node_modules/
 .next/
 .vercel/
 dist/
 build/
+*.tsbuildinfo
+
+# Caches & logs
 *.log
 .cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

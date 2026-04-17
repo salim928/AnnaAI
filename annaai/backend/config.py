@@ -78,6 +78,9 @@ class Settings(BaseSettings):
     PAYSTACK_SECRET_KEY: str = ""
     PAYSTACK_PUBLIC_KEY: str = ""
 
+    # --- Sentry -------------------------------------------------------------
+    SENTRY_DSN: str = ""  # leave empty to disable error tracking
+
     # --- CORS ---------------------------------------------------------------
     CORS_ORIGINS: list[str] = Field(
         default_factory=lambda: [
@@ -102,16 +105,28 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def _validate(self) -> "Settings":
         if self.is_production:
+            missing = []
             if not self.SUPABASE_URL:
-                raise ValueError("SUPABASE_URL is required in production")
+                missing.append("SUPABASE_URL")
             if not self.SUPABASE_SERVICE_ROLE_KEY:
-                raise ValueError("SUPABASE_SERVICE_ROLE_KEY is required in production")
+                missing.append("SUPABASE_SERVICE_ROLE_KEY")
             if not self.ANTHROPIC_API_KEY:
-                raise ValueError("ANTHROPIC_API_KEY is required in production")
-        if not self.SECRET_KEY:
-            logger.warning("SECRET_KEY is empty — JWT signing will be insecure")
-        if not self.ENCRYPTION_KEY:
-            logger.warning("ENCRYPTION_KEY is empty — OAuth token encryption disabled")
+                missing.append("ANTHROPIC_API_KEY")
+            if not self.SECRET_KEY:
+                missing.append("SECRET_KEY")
+            if not self.ENCRYPTION_KEY:
+                missing.append("ENCRYPTION_KEY")
+            if not self.SCHEDULER_SECRET:
+                missing.append("SCHEDULER_SECRET")
+            if missing:
+                raise ValueError(
+                    f"Required env vars missing in production: {', '.join(missing)}"
+                )
+        else:
+            if not self.SECRET_KEY:
+                logger.warning("SECRET_KEY is empty — JWT signature verification disabled (dev only)")
+            if not self.ENCRYPTION_KEY:
+                logger.warning("ENCRYPTION_KEY is empty — OAuth token encryption disabled (dev only)")
         return self
 
 

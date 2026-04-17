@@ -3,9 +3,10 @@ from __future__ import annotations
 
 import hmac
 
-from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, Request
 
 from agents.pipeline import run_daily_pipeline_for_all_orgs
+from api.rate_limit import SCHEDULER_LIMIT, limiter
 from config import settings
 from utils.logger import get_logger
 
@@ -25,7 +26,9 @@ def _require_scheduler_auth(authorization: str | None) -> None:
 
 
 @router.post("/trigger-all-runs")
+@limiter.limit(SCHEDULER_LIMIT)
 async def trigger_all_runs(
+    request: Request,
     background: BackgroundTasks,
     authorization: str | None = Header(default=None),
 ) -> dict[str, str]:

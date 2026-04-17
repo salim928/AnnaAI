@@ -5,10 +5,11 @@ import json
 from collections.abc import AsyncIterator
 
 from anthropic import Anthropic
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
+from api.rate_limit import CHAT_LIMIT, limiter
 from config import settings
 from db.client import get_supabase_admin_client
 from dependencies import CurrentOrgUser
@@ -69,7 +70,8 @@ async def _stream(org_id: str, message: str, history: list[dict[str, str]]) -> A
 
 
 @router.post("/message")
-async def chat_message(payload: ChatRequest, user: CurrentOrgUser) -> StreamingResponse:
+@limiter.limit(CHAT_LIMIT)
+async def chat_message(request: Request, payload: ChatRequest, user: CurrentOrgUser) -> StreamingResponse:
     sb = get_supabase_admin_client()
     if sb is not None:
         try:
